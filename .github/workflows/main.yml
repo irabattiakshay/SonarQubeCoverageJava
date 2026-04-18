@@ -1,26 +1,26 @@
 name: build JAVA application
-on: # multiple triggers when this workflow can run
- workflow_dispatch:
- push:
-   branches:
-     - master
- pull_request:
-   branches:
-     - master
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 jobs:
   job1:
     runs-on: ubuntu-latest
     steps:
-    - name: Clone the repo
-      uses: actions/checkout@v6
-    - name: Install java on runner
-      uses: actions/setup-java@v5
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-    - name: build java code
-      run: mvn clean package
-    - name: Upload artifact from runner to github repo
+      - name: Clone the repository
+        uses: actions/checkout@v6
+      - name: Install java on runner
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build java code
+        run: mvn clean package
+      - name: Upload artifact from runner to github repo
         uses: actions/upload-artifact@v4
         with:
           name: wicket-pwnedpasswords-validator-2.0.1
