@@ -1,14 +1,17 @@
 name: build JAVA application
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+    inputs:
+      job_name:
+        description: 'Select the job to run'
+        required: true
+        type: choice
+        options:
+          - job1_build
+          - job2_CodeCoverage
 jobs:
-  job1:
+  job1_build:
+    if: ${{ github.event.inputs.job_name == 'job1_build' }}
     runs-on: ubuntu-latest
     steps:
       - name: Clone the repository
@@ -20,8 +23,21 @@ jobs:
           java-version: '17'
       - name: Build java code
         run: mvn clean package
-      - name: Upload artifact from runner to github repo
-        uses: actions/upload-artifact@v4
+  job2_CodeCoverage:
+    if: ${{ github.event.inputs.job_name == 'job2_CodeCoverage' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the repository
+        uses: actions/checkout@v6
+      - name: Install java on runner
+        uses: actions/setup-java@v5
         with:
-          name: wicket-pwnedpasswords-validator-2.0.1
-          path: /home/runner/work/SonarQubeCoverageJava/SonarQubeCoverageJava/target/wicket-pwnedpasswords-validator-2.0.1-SNAPSHOT.jar
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build java code
+        run: mvn clean package
+      - name: Code coverage using sonarcloud
+        run: mvn -B verify sonar:sonar -Dsonar.projectKey=sonar-devops-irabattiakshay_sonar-devops-irabattiakshay-project -Dsonar.organization=sonar-devops-irabattiakshay -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.token=$SONAR_TOKEN
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
